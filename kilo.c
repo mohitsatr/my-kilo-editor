@@ -871,12 +871,13 @@ int main(int argc, char *argv[])
 {
   enabelRawMode();
   initEditor(); /* getting row , col size */
+
   if (argc >= 2)
   {
     editorOpen(argv[1]);
   }
 
-  editorSetStatusMessage("HELP:Ctrl-S = Save | Ctrl-Q = quit");
+  editorSetStatusMessage(" Ctrl-S = Save | Ctrl-Q = quit");
 
   while (1)
   {
