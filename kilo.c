@@ -335,7 +335,7 @@ void editorRowInsertChar(erow *row, int at, int c)
   if (at < 0 || at > row->size)
     at = row->size;
 
-  row->chars = realloc(row->chars, row->size + 10), /** edited file **/
+  row->chars = realloc(row->chars, row->size + 2); /** edited file **/
   memmove(&row->chars[at + 1], &row->chars[at], row->size - at + 1);
   row->size++;
   row->chars[at] = c;
@@ -554,7 +554,7 @@ void editorSetStatusMessage(const char *fmt, ...)
   E.statusmsg_time = time(NULL);
 }
 
-/** editor operations **/
+/** editor operations --  **/
 void editorInsertChar(int c)
 {
   if (E.cy == E.numrows)
@@ -778,16 +778,16 @@ char *editorRowsToString(int *buflen){
   int totlen = 0;
   int j;
   for (j = 0; j < E.numrows; j++)
-  {
     totlen += E.row[j].size + 1;
-  }
+  
   *buflen = totlen;
-  char *buf = malloc(totlen+200);
+  char *buf = malloc(totlen);
   char *p = buf;
   for (j = 0; j < E.numrows; j++)
   {
     memcpy(p, E.row[j].chars, E.row[j].size);
-    p += E.row[j].size, *p = '\n';
+    p += E.row[j].size; /** I.T p is being incremented to move it forward  **/
+    *p = '\n'; /**after bringing it to end of the row , add \n **/
     p++;
   }
   return buf;
@@ -826,14 +826,11 @@ void editorSave(){ /*Save to the disk*/
   } 
 
   int len;
-  int *buf = editorRowsToString(&len);
+  char *buf = editorRowsToString(&len);
   int fd = open(E.filename, O_RDWR | O_CREAT, 0644);
-  if (fd != -1)
-  {
-    if (ftruncate(fd, len))
-    {
-      if (write(fd, buf, len) == len)
-      {
+  if (fd != -1){
+    if (ftruncate(fd, len) != -1){
+      if (write(fd, buf, len) == len){
         close(fd);
         free(buf);
         E.dirty=0;
